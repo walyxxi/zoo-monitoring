@@ -1,9 +1,9 @@
-import React from 'react';
-import { Box, Toolbar } from '@material-ui/core'
-import { Route, Switch } from 'react-router-dom'
-import Header from 'components/Header'
-import Sidebar from 'components/Sidebar'
-import routes from 'routes'
+import React from "react";
+import { Box, Toolbar } from "@material-ui/core";
+import { Route, Switch } from "react-router-dom";
+import Header from "components/Header";
+import Sidebar from "components/Sidebar";
+import routes from "routes";
 
 function Index() {
   return (
@@ -18,7 +18,12 @@ function Index() {
           <Box p={3}>
             <Switch>
               {routes.map((route) => (
-                <Route key={route.id} path={route.path} component={route.component} exact={route.exact} />
+                <Route
+                  key={route.id}
+                  path={route.path}
+                  component={route.component}
+                  exact={route.exact}
+                />
               ))}
             </Switch>
           </Box>

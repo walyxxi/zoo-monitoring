@@ -4,22 +4,25 @@ export const generateHighchartsData = (sickAnimals = []) => {
       text: null,
     },
     chart: {
-      type: 'pie',
+      type: "pie",
+      style: {
+        fontFamily: "arial",
+      },
     },
-    series: []
-  }
+    series: [],
+  };
 
   if (sickAnimals.length > 0) {
     options.series = [
       {
-        name: 'Count',
+        name: "Count",
         data: sickAnimals.map((sickAnimal) => ({
           name: sickAnimal.name,
           y: sickAnimal.count,
-        }))
-      }
-    ]
+        })),
+      },
+    ];
   }
 
-  return options
-}
+  return options;
+};

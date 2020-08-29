@@ -1,9 +1,33 @@
-export const generateHighchartsData = () => {
+export const generateHighchartsData = (
+  foodComsumption = [],
+  animalName = []
+) => {
+  const categories = foodComsumption.map((consum) => {
+    return consum.period;
+  });
+
+  const series = [];
+
+  if (foodComsumption.length > 0) {
+    animalName.forEach((an, idx) => {
+      let data = [];
+      foodComsumption.forEach((m) => {
+        data.push(m.meatConsumption[idx] ? m.meatConsumption[idx].meat : 0);
+      });
+
+      series.push({
+        name: an.animal,
+        data,
+      });
+    });
+  }
+
   const options = {
     chart: {
       type: "column",
       style: {
         fontFamily: "arial",
+        marginBottom: 20,
       },
     },
     title: {
@@ -14,44 +38,16 @@ export const generateHighchartsData = () => {
       align: "right",
       verticalAlign: "top",
     },
+    credits: {
+      enabled: false,
+    },
     xAxis: {
       min: 0,
-      max: 14,
+      max: 12,
       scrollbar: {
         enabled: true,
       },
-      categories: [
-        "1/3",
-        "2/3",
-        "3/3",
-        "4/3",
-        "5/3",
-        "6/3",
-        "7/3",
-        "8/3",
-        "9/3",
-        "10/3",
-        "11/3",
-        "12/3",
-        "13/3",
-        "14/3",
-        "15/3",
-        "16/3",
-        "17/3",
-        "18/3",
-        "19/3",
-        "20/3",
-        "21/3",
-        "22/3",
-        "23/3",
-        "24/3",
-        "25/3",
-        "26/3",
-        "27/3",
-        "28/3",
-        "29/3",
-        "30/3",
-      ],
+      categories,
     },
     yAxis: {
       min: 0,
@@ -71,114 +67,126 @@ export const generateHighchartsData = () => {
         stacking: "normal",
       },
     },
-    series: [
-      {
-        name: "BERUANG",
-        data: [
-          14.56,
-          12.67,
-          10.23,
-          13.34,
-          10.67,
-          7.28,
-          14.74,
-          16.25,
-          11.56,
-          19.45,
-          14.56,
-          12.67,
-          10.23,
-          13.34,
-          10.67,
-          7.28,
-          14.74,
-          16.25,
-          11.56,
-          19.45,
-          14.56,
-          12.67,
-          10.23,
-          13.34,
-          10.67,
-          7.28,
-          14.74,
-          16.25,
-          11.56,
-          19.45,
-        ],
-      },
-      {
-        name: "BUAYA",
-        data: [
-          2.23,
-          4.45,
-          5.23,
-          1.74,
-          2.12,
-          6.29,
-          5.82,
-          3.83,
-          5.26,
-          6.1,
-          2.23,
-          4.45,
-          5.23,
-          1.74,
-          2.12,
-          6.29,
-          5.82,
-          3.83,
-          5.26,
-          6.1,
-          2.23,
-          4.45,
-          5.23,
-          1.74,
-          2.12,
-          6.29,
-          5.82,
-          3.83,
-          5.26,
-          6.1,
-        ],
-      },
-      {
-        name: "LAINNYA",
-        data: [
-          7.63,
-          13.34,
-          20.75,
-          10.23,
-          20.76,
-          19.74,
-          24.38,
-          12.81,
-          21.52,
-          14.78,
-          7.63,
-          13.34,
-          20.75,
-          10.23,
-          20.76,
-          19.74,
-          24.38,
-          12.81,
-          21.52,
-          14.78,
-          7.63,
-          13.34,
-          20.75,
-          10.23,
-          20.76,
-          19.74,
-          24.38,
-          12.81,
-          21.52,
-          14.78,
-        ],
-      },
-    ],
+    series,
   };
 
   return options;
+};
+
+export const sortAndMapData = (foodComsumption = []) => {
+  // Sort and mapping the date period
+  const data = foodComsumption
+    .map((consum) => {
+      return {
+        period: `${consum.day}/${consum.month}`,
+        animal: consum.animal,
+        meat: consum.meat,
+      };
+    })
+    .sort((a, b) => {
+      const ma = parseInt(a.period.split("/")[0]);
+      const mb = parseInt(b.period.split("/")[0]);
+
+      const da = parseInt(a.period.split("/")[1]);
+      const db = parseInt(a.period.split("/")[1]);
+
+      const aa = a.animal;
+      const ab = b.animal;
+
+      if (ma < mb) return -1;
+      if (ma > mb) return 1;
+      if (da < db) return -1;
+      if (da > db) return 1;
+      if (aa === "LAINNYA" || ab === "LAINNYA") return 1;
+      if (aa < ab) return -1;
+      if (aa > ab) return 1;
+      return 0;
+    });
+
+  // Sum `meat` keys by value `period` and `aminal`
+  let holder = {};
+
+  data.forEach((d) => {
+    const key = `${d.period}-${d.animal}`;
+    if (holder.hasOwnProperty(key)) {
+      holder[key] += parseFloat(`${d.meat}`);
+    } else {
+      holder[key] = d.meat;
+    }
+  });
+
+  let newData = [];
+
+  for (let prop in holder) {
+    newData.push({
+      period: prop.split("-")[0],
+      animal: prop.split("-")[1],
+      meat: Math.round(holder[prop] * 100) / 100,
+    });
+  }
+
+  // Gives an object with period as keys
+  const groups = newData.reduce((groups, consum) => {
+    const period = consum.period;
+    if (!groups[period]) {
+      groups[period] = [];
+    }
+    groups[period].push({
+      animal: consum.animal,
+      meat: consum.meat,
+    });
+    return groups;
+  }, {});
+
+  newData = [];
+
+  for (const key in groups) {
+    newData.push({
+      period: key,
+      meatConsumption: groups[key],
+    });
+  }
+
+  return newData;
+};
+
+export const getAnimalName = (foodComsumption = []) => {
+  const name = [];
+  foodComsumption.forEach((el) => {
+    const filter = name.findIndex((d) => d === el.animal);
+    if (filter === -1) {
+      name.push(el.animal);
+    }
+  });
+
+  name.sort((a, b) => {
+    if (a === "LAINNYA" || b === "LAINNYA") return 1;
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+  });
+
+  return name;
+};
+
+export const totalMeatConsumptionByPeriod = (data) => {
+  let total = null;
+
+  data.forEach((d) => {
+    total += d ? d.meat : 0;
+  });
+
+  return Math.round(total * 100) / 100;
+};
+
+export const grandTotal = (data) => {
+  let total = null;
+
+  data.forEach((d) => {
+    d.meatConsumption.forEach((m) => {
+      total += m.meat;
+    });
+  });
+
+  return total;
 };

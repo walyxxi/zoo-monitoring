@@ -6,17 +6,19 @@ export const generateHighchartsData = (
     return consum.period;
   });
 
+  console.log(categories);
+
   const series = [];
 
   if (foodComsumption.length > 0) {
-    animalName.forEach((an, idx) => {
+    animalName.forEach((animal, idx) => {
       let data = [];
       foodComsumption.forEach((m) => {
         data.push(m.meatConsumption[idx] ? m.meatConsumption[idx].meat : 0);
       });
 
       series.push({
-        name: an.animal,
+        name: animal,
         data,
       });
     });
